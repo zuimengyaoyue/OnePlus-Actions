@@ -119,11 +119,11 @@ sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/msm-ker
 sed -i '$i res=$(echo "$res" | sed '\''s/-dirty//g'\'')' kernel_platform/external/dtc/scripts/setlocalversion
 
 if [ "$KERNEL_VERSION" != "6.6" ]; then
-  sed -i '$s|echo "\$res"|echo "-'"$adv"'-oki-xiaoxiaow"|' kernel_platform/common/scripts/setlocalversion
-  sed -i '$s|echo "\$res"|echo "-'"$adv"'-oki-xiaoxiaow"|' kernel_platform/msm-kernel/scripts/setlocalversion
-  sed -i '$s|echo "\$res"|echo "-'"$adv"'-oki-xiaoxiaow"|' kernel_platform/external/dtc/scripts/setlocalversion
+  sed -i '$s|echo "\$res"|echo "-'"$adv"'-android16-lunaris"|' kernel_platform/common/scripts/setlocalversion
+  sed -i '$s|echo "\$res"|echo "-'"$adv"'-android16-lunaris"|' kernel_platform/msm-kernel/scripts/setlocalversion
+  sed -i '$s|echo "\$res"|echo "-'"$adv"'-android16-lunaris"|' kernel_platform/external/dtc/scripts/setlocalversion
 else
-  ESCAPED_SUFFIX=$(printf '%s\n' "-${ANDROID_VERSION}-oki-xiaoxiaow" | sed 's:[\/&]:\\&:g')
+  ESCAPED_SUFFIX=$(printf '%s\n' "-${ANDROID_VERSION}-android16-lunaris" | sed 's:[\/&]:\\&:g')
   sed -i "s/-4k/${ESCAPED_SUFFIX}/g" kernel_platform/common/arch/arm64/configs/gki_defconfig
   sed -i 's/\${scm_version}//' kernel_platform/common/scripts/setlocalversion
   sed -i 's/\${scm_version}//' kernel_platform/msm-kernel/scripts/setlocalversion
@@ -161,7 +161,7 @@ if [ -z "$KSU_API_VERSION" ]; then
 fi
 
 KSU_COMMIT_HASH=$(git ls-remote https://github.com/SukiSU-Ultra/SukiSU-Ultra.git refs/heads/builtin | cut -f1 | cut -c1-8)
-KSU_VERSION_FULL="v${KSU_API_VERSION}-${KSU_COMMIT_HASH}-xiaoxiaow@builtin"
+KSU_VERSION_FULL="v${KSU_API_VERSION}-${KSU_COMMIT_HASH}-zmyy"
 
 sed -i '/define get_ksu_version_full/,/endef/d' kernel/Kbuild
 sed -i '/KSU_VERSION_API :=/d' kernel/Kbuild
@@ -173,7 +173,7 @@ while IFS= read -r line; do
   if echo "$line" | grep -q 'REPO_OWNER :='; then
     cat >> "$TMP_FILE" <<EOF
 define get_ksu_version_full
-v\\\$\$1-${KSU_COMMIT_HASH}-xiaoxiaow@builtin
+v\\\$\$1-${KSU_COMMIT_HASH}-zmyy
 endef
 
 KSU_VERSION_API := ${KSU_API_VERSION}
@@ -221,9 +221,11 @@ cd ./common
 
 if [ "$SUSFS" = "On" ]; then
     patch -p1 < 50_add_susfs_in_gki-${ANDROID_VERSION}-${KERNEL_VERSION}.patch || true
+    find kernel -type f \( -name "*.c" -o -name "*.h" -o -name "Makefile" -o -name "Kconfig" \) -exec sed -i 's/xiaoxiaow/lunaris/g' {} \; 2>/dev/null || true
 else
     echo "📦 应用 MANUAL_HOOK 补丁..."
     patch -p1 -F 3 < scope_min_manual_hooks_v1.6_fix.patch
+    find kernel -type f \( -name "*.c" -o -name "*.h" -o -name "Makefile" -o -name "Kconfig" \) -exec sed -i 's/xiaoxiaow/lunaris/g' {} \; 2>/dev/null || true
 fi
 
 if [ "$lz4kd" = "Off" ] && [ "$KERNEL_VERSION" = "6.1" ]; then
